@@ -1,9 +1,10 @@
 import datetime
 import json
+import os
 
 class Core:
 
-    def __init__(self, path_config: str = "" ,datetime_format: str = "d%/%m/%y", encoding_format: str = "utf8", cls: str = "Core", verbose: bool = True, debug: bool = True, formated: bool = True):
+    def __init__(self, path_config: str = "" ,datetime_format: str = "%d/%m/%y %H:%M:%S", encoding_format: str = "utf8", cls: str = "Core", verbose: bool = True, debug: bool = True, formated: bool = True):
         self.__version__ = "1.0.0"
         self._messages_codes = {10: 'debug', 20: 'info', 30: 'warning', 40: 'error'}
         self.cls = cls
@@ -15,10 +16,11 @@ class Core:
         self.path_config = path_config
         self.path_log_folder = ""
         self.filename_log = ""
-        
+        self.logger = None        
 
-    def now(self):
-        return datetime.datetime.now().strftime(self.datetime_format)  
+    def now(self, datetime_format: str = ""):
+        datetime_format = datetime_format if datetime_format != "" else self.datetime_format
+        return datetime.datetime.now().strftime(datetime_format)  
 
     def load_config(self):
 
@@ -86,3 +88,74 @@ class Core:
         self._display(_message)
     
 
+    def open_log_file(self):
+
+        if self.path_log_folder != "":
+            _now = self.now(datetime_format="%d%m%y%H%M%S")
+            log_filename = f"{_now}_{self.cls}.log"
+
+            full_path_log_filename = os.path.join(self.path_log_folder, log_filename)
+            self.filename_log = full_path_log_filename
+
+            self.logger = open(full_path_log_filename, 'a', encoding=self.encoding_format)
+        else:
+            self.warning("Log folder path is empty")
+
+    def write_log(self, message: str):
+
+        self.logger.write(message)
+        self.logger.flush()
+
+    def close_log(self):
+
+        try:
+            self.logger.close()
+            self.info(f"Closing log folder {self.filename_log}")
+        except Exception as error:
+            self.error(error)
+
+    def debug_wl(self, message: str = "[default debug message]"):
+
+        if self._debug is True:
+            _message = ""
+            if self.formated is True:
+                _message = self._format_message('debug', message)
+            else:
+                _message = message
+
+            self.write_log(_message)
+            self._display(_message)
+
+    def info_wl(self, message: str = "[default info message]"):        
+
+        if self._verbose is True:
+            _message = ""
+            if self.formated is True:
+                _message = self._format_message('info', message)
+            else:
+                _message = message
+
+            self.write_log(_message)
+            self._display(_message)
+
+    def warning_wl(self, message: str = "[default warning message]"):        
+
+        _message = ""
+        if self.formated is True:
+            _message = self._format_message('warning', message)
+        else:
+            _message = message
+
+        self.write_log(_message)
+        self._display(_message)
+        
+    def error_wl(self, message: str = "[default error message]"):        
+
+        _message = ""
+        if self.formated is True:
+            _message = self._format_message('error', message)
+        else:
+            _message = message
+
+        self.write_log(_message)
+        self._display(_message)
