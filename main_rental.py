@@ -22,15 +22,11 @@ class Main:
 
             out = {"empty list of contracts"}
 
+        return out
 
     def format_result(self, selected_contracts: list):
 
-        out = {"income": 0, "path": []}
-
-        for contract in selected_contracts:
-
-            out["income"] += contract["price"]
-            out["path"].append(contract["name"])
+        out = {"income": str(selected_contracts["price"].sum()), "path": list(selected_contracts["name"])}
 
         return out
 
