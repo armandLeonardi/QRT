@@ -1,3 +1,11 @@
+"""
+This script containt classes:
+    - Core: a class offering basic functionalites such as formated display, configuration loading, log file management
+    - Base64Engine: a class offering the possibilities to encode/decode string in base64
+
+You can check on the '__main__' part to see how to use thoose classes
+Ael - 02FEB23
+"""
 import datetime
 import json
 import os
