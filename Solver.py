@@ -19,7 +19,7 @@ class Solver(Core):
 
     def maximize_price(self) -> list:
 
-        self.info("search for the most optimized contracts path")
+        self.debug("search for the most optimized contracts path")
 
         out_list = pd.DataFrame()
 
@@ -29,11 +29,11 @@ class Solver(Core):
 
         while self.is_ended is False:
 
+            self.debug(f"current contract {current_contract.to_json()}, remaining contracts {len(self.list_of_contracts)}")
+
             self.drop_contract(current_contract)
 
             current_contract = self.get_next_contract(current_contract)
-
-            self.debug(f"current contract {current_contract}, remaining contracts {len(self.list_of_contracts)}")
 
             out_list = self._concat(out_list, current_contract)
 
@@ -55,13 +55,13 @@ class Solver(Core):
         next_start = current_contract["duration"].values[0]
         next_possible_contracts = self.list_of_contracts[self.list_of_contracts['start'] >= next_start]
 
-        self.debug(f"List of next possibles contracts {next_possible_contracts}")
+        self.debug(f"List of next possibles contracts {next_possible_contracts.to_json()}")
 
         if next_possible_contracts.empty is False:
 
             next_contract = next_possible_contracts[next_possible_contracts['price'] == next_possible_contracts['price'].max()]
 
-            self.debug(f"Selected next contract {next_contract}")
+            self.debug(f"Selected next contract {next_contract.to_json()}")
 
         else:
 
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     {"name": "Contract4", "start": 5, "duration": 9, "price": 7}
     ]
 
-    S = Solver(list_of_contracts=list_of_contracts)
+    S = Solver(list_of_contracts=list_of_contracts, debug=True, verbose=True, formated=True)
 
     result = S.maximize_price()
 
