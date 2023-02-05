@@ -16,7 +16,8 @@ class Core:
         self.path_config = path_config
         self.path_log_folder = ""
         self.filename_log = ""
-        self.logger = None        
+        self.logger = None
+        self.logger_open = False
 
     def now(self, datetime_format: str = ""):
         datetime_format = datetime_format if datetime_format != "" else self.datetime_format
@@ -38,55 +39,12 @@ class Core:
                         self.__setattr__(key, value)
 
     def _format_message(self, message_type: str, message: str):
-        formated_message = f"{self.now()} | {self.cls} | {message_type} | {message}"
+        formated_message = f"{self.now()} | {self.cls} | {message_type: <9} | {message}"
         return formated_message
     
     def _display(self, message: str, end: str = "\n"):
 
         print(message, end=end)
-
-    def debug(self, message: str = "[default debug message]"):
-
-        if self._debug is True:
-            _message = ""
-            if self.formated is True:
-                _message = self._format_message('debug', message)
-            else:
-                _message = message
-
-            self._display(_message)
-
-    def info(self, message: str = "[default info message]"):        
-
-        if self._verbose is True:
-            _message = ""
-            if self.formated is True:
-                _message = self._format_message('info', message)
-            else:
-                _message = message
-
-            self._display(_message)
-
-    def warning(self, message: str = "[default warning message]"):        
-
-        _message = ""
-        if self.formated is True:
-            _message = self._format_message('warning', message)
-        else:
-            _message = message
-
-        self._display(_message)
-        
-    def error(self, message: str = "[default error message]"):        
-
-        _message = ""
-        if self.formated is True:
-            _message = self._format_message('error', message)
-        else:
-            _message = message
-
-        self._display(_message)
-    
 
     def open_log_file(self):
 
@@ -98,23 +56,30 @@ class Core:
             self.filename_log = full_path_log_filename
 
             self.logger = open(full_path_log_filename, 'a', encoding=self.encoding_format)
+            self.logger_open = True
+
         else:
             self.warning("Log folder path is empty")
 
-    def write_log(self, message: str):
+    def write_log(self, message: str, end: str = "\n"):
 
-        self.logger.write(message)
-        self.logger.flush()
+        if self.logger_open is True:
+            try:
+                self.logger.write(f"{message}{end}")
+                self.logger.flush()
+            except Exception as error:
+                self.error(error)
 
     def close_log(self):
 
         try:
             self.logger.close()
+            self.logger_open = False
             self.info(f"Closing log folder {self.filename_log}")
         except Exception as error:
             self.error(error)
 
-    def debug_wl(self, message: str = "[default debug message]"):
+    def debug(self, message: str = "[default debug message]"):
 
         if self._debug is True:
             _message = ""
@@ -126,7 +91,7 @@ class Core:
             self.write_log(_message)
             self._display(_message)
 
-    def info_wl(self, message: str = "[default info message]"):        
+    def info(self, message: str = "[default info message]"):        
 
         if self._verbose is True:
             _message = ""
@@ -138,7 +103,7 @@ class Core:
             self.write_log(_message)
             self._display(_message)
 
-    def warning_wl(self, message: str = "[default warning message]"):        
+    def warning(self, message: str = "[default warning message]"):        
 
         _message = ""
         if self.formated is True:
@@ -149,7 +114,7 @@ class Core:
         self.write_log(_message)
         self._display(_message)
         
-    def error_wl(self, message: str = "[default error message]"):        
+    def error(self, message: str = "[default error message]"):        
 
         _message = ""
         if self.formated is True:
@@ -159,3 +124,24 @@ class Core:
 
         self.write_log(_message)
         self._display(_message)
+
+
+if __name__ == "__main__":
+
+    c = Core(path_config=r"D:\Informatique\QRT\demo_core_config.json")
+
+    c.load_config()
+
+    c.debug("my debug message")
+    c.info("my info message")
+    c.warning("my warning message")
+    c.error("my error message")
+
+    c.open_log_file()
+ 
+    c.debug("my debug message")
+    c.info("my info message")
+    c.warning("my warning message")
+    c.error("my error message")
+
+    c.close_log()
