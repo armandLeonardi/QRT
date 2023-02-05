@@ -1,0 +1,8 @@
+{
+    "datetime_format": "%d/%m/%y %H:%M:%S",
+    "encoding_format": "utf8",
+    "verbose": false,
+    "debug": false,
+    "formated": true,
+    "path_log_folder" : "D:\\Informatique\\QRT\\logs"
+}
