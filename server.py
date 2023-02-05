@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-from main_rental import Main
 from ast import literal_eval
 import subprocess
 from argparse import ArgumentParser
@@ -35,19 +34,14 @@ def optimize():
 
         target_script = config.get("target_script")
         target_script_config = config.get("target_script_config")
-        verbose = "--verbose" if config.get("verbose") is True else ""
-        debug = "--debug" if config.get("debug") is True else ""
-        formated = "--formated" if config.get("formated") is True else ""
 
-        subprocess.run(f"python {target_script} --config {target_script_config} {verbose} {debug} {formated} --contracts {raw_list_of_contracts_b64}")
-
+        subprocess_result = subprocess.check_output(f"python {target_script} --config {target_script_config} --contracts {raw_list_of_contracts_b64}")
+        result = literal_eval(subprocess_result.decode('utf8'))
 
     else:
         result = raw_list_of_contracts
 
     return jsonify(result)
-
-subprocess.run("python main_rental.py --config")
 
 if __name__ == "__main__":
 
