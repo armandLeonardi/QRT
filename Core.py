@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import base64
 
 class Core:
 
@@ -124,6 +125,19 @@ class Core:
 
         self.write_log(_message)
         self._display(_message)
+
+
+class Base64Engine:
+
+    encoding = "utf8"
+
+    @classmethod
+    def encode(cls, chars: str):
+        return base64.b64encode(chars.encode(encoding=Base64Engine.encoding)).decode(encoding=Base64Engine.encoding)
+    
+    @classmethod
+    def decode(cls, chars64: str):
+        return base64.b64decode(chars64).decode(encoding=Base64Engine.encoding)
 
 
 if __name__ == "__main__":
