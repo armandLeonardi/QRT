@@ -1,13 +1,15 @@
 import pandas as pd
+from Core import Core
 
-class Solver:
+class Solver(Core):
 
-    def __init__(self, list_of_contracts):
+    def __init__(self, list_of_contracts, verbose: bool = False, debug: bool = False, formated: bool = False):
+        super().__init__(verbose=verbose, debug=debug, formated=formated, cls=self.__class__.__name__)
         self.__version__ = "1.0.0"
         self.list_of_contracts = pd.DataFrame(list_of_contracts)
         self.is_ended = False
 
-    def _concat(self, A, B):
+    def _concat(self, A: pd.DataFrame, B: pd.DataFrame):
 
         if B is not None:
             C = pd.concat([A, B])
@@ -17,19 +19,21 @@ class Solver:
 
     def maximize_price(self) -> list:
 
+        self.info("search for the most optimized contracts path")
+
         out_list = pd.DataFrame()
 
         current_contract = self.get_start_contract()
 
         out_list = self._concat(out_list, current_contract)
 
-        # out_list.append(current_contract)
-
         while self.is_ended is False:
 
             self.drop_contract(current_contract)
 
             current_contract = self.get_next_contract(current_contract)
+
+            self.debug(f"current contract {current_contract}, remaining contracts {len(self.list_of_contracts)}")
 
             out_list = self._concat(out_list, current_contract)
 
@@ -51,9 +55,13 @@ class Solver:
         next_start = current_contract["duration"].values[0]
         next_possible_contracts = self.list_of_contracts[self.list_of_contracts['start'] >= next_start]
 
+        self.debug(f"List of next possibles contracts {next_possible_contracts}")
+
         if next_possible_contracts.empty is False:
 
             next_contract = next_possible_contracts[next_possible_contracts['price'] == next_possible_contracts['price'].max()]
+
+            self.debug(f"Selected next contract {next_contract}")
 
         else:
 
@@ -69,7 +77,6 @@ if __name__ == "__main__":
     {"name": "Contract3", "start": 5, "duration": 9, "price": 8},
     {"name": "Contract4", "start": 5, "duration": 9, "price": 7}
     ]
-
 
     S = Solver(list_of_contracts=list_of_contracts)
 
