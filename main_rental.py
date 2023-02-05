@@ -1,35 +1,27 @@
-from Solver import Solver
-
-class Main:
-
-    def __init__(self, list_of_contract: list = []):
-        self.__version__ = "1.0.0"
-        self.list_of_contract = []
-        self.solver = None
-
-    def run(self):
-
-        out = {}
-
-        if self.list_of_contract != []:
-            self.solver = Solver(list_of_contracts=self.list_of_contract)
-
-            selected_contracts = self.solver.maximize_price()
-
-            out = self.format_result(selected_contracts)
-
-        else:
-
-            out = {"empty list of contracts"}
-
-        return out
-
-    def format_result(self, selected_contracts: list):
-
-        out = {"income": str(selected_contracts["price"].sum()), "path": list(selected_contracts["name"])}
-
-        return out
+from Main import Main
+from argparse import ArgumentParser
+from Core import Base64Engine
 
 if __name__ == '__main__':
 
-    print("Main rental")
+    parser = ArgumentParser()
+    parser.add_argument("--config", help="Configuration path use by Main.py" ,type=str, default="")
+    parser.add_argument("--contracts", help="List of contracts (in base64)", type=str, default="")
+    parser.add_argument("--verbose", help="Display details if true. False otherwise.", type=bool,  action='store_true')
+    parser.add_argument("--debug", help="Display more details if true. False otherwise.", type=bool,  action='store_true')
+    parser.add_argument("--formated", help="Format displayed messges if true. False otherwise.", type=bool,  action='store_true')
+    
+    args = parser.parse_args()
+
+    config = args.config.strip()
+    contracts = Base64Engine.decode(args.contracts)
+    verbose = args.verbose
+    debug = args.debug
+    formated = args.formated
+
+    current_main = Main(path_config=config, verbose=verbose, debug=debug, formated=formated)
+
+    result = current_main.run(list_of_contracts=contracts)
+
+    print(result)
+    exit(0)
