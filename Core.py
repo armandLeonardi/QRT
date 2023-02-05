@@ -5,7 +5,7 @@ import base64
 
 class Core:
 
-    def __init__(self, path_config: str = "" ,datetime_format: str = "%d/%m/%y %H:%M:%S", encoding_format: str = "utf8", cls: str = "Core", verbose: bool = True, debug: bool = True, formated: bool = True):
+    def __init__(self, path_config: str = "" ,datetime_format: str = "%d/%m/%y %H:%M:%S", encoding_format: str = "utf8", cls: str = "Core", verbose: bool = True, debug: bool = True, formated: bool = True, *args, **kargs):
         self.__version__ = "1.0.0"
         self._messages_codes = {10: 'debug', 20: 'info', 30: 'warning', 40: 'error'}
         self.cls = cls
@@ -40,7 +40,7 @@ class Core:
                         self.__setattr__(key, value)
 
     def _format_message(self, message_type: str, message: str):
-        formated_message = f"{self.now()} | {self.cls} | {message_type: <9} | {message}"
+        formated_message = f"{self.now()} | {self.cls: <9} | {message_type: <9} | {message}"
         return formated_message
     
     def _display(self, message: str, end: str = "\n"):
@@ -62,6 +62,13 @@ class Core:
         else:
             self.warning("Log folder path is empty")
 
+    def set_logger(self, other):
+
+        if 'logger' in other.__dict__:
+            if other.logger is not None:
+                self.logger = other.logger
+                self.logger_open = True
+
     def write_log(self, message: str, end: str = "\n"):
 
         if self.logger_open is True:
@@ -82,27 +89,29 @@ class Core:
 
     def debug(self, message: str = "[default debug message]"):
 
-        if self._debug is True:
-            _message = ""
-            if self.formated is True:
-                _message = self._format_message('debug', message)
-            else:
-                _message = message
+        _message = ""
+        if self.formated is True:
+            _message = self._format_message('debug', message)
+        else:
+            _message = message
 
-            self.write_log(_message)
+        if self._debug is True:
             self._display(_message)
+
+        self.write_log(_message)
 
     def info(self, message: str = "[default info message]"):        
 
-        if self._verbose is True:
-            _message = ""
-            if self.formated is True:
-                _message = self._format_message('info', message)
-            else:
-                _message = message
+        _message = ""
+        if self.formated is True:
+            _message = self._format_message('info', message)
+        else:
+            _message = message
 
-            self.write_log(_message)
+        if self._verbose is True:
             self._display(_message)
+
+        self.write_log(_message)
 
     def warning(self, message: str = "[default warning message]"):        
 
@@ -133,6 +142,7 @@ class Base64Engine:
 
     @classmethod
     def encode(cls, chars: str):
+        chars = str(chars)
         return base64.b64encode(chars.encode(encoding=Base64Engine.encoding)).decode(encoding=Base64Engine.encoding)
     
     @classmethod
