@@ -7,13 +7,23 @@ class Solver:
         self.list_of_contracts = pd.DataFrame(list_of_contracts)
         self.is_ended = False
 
+    def _concat(self, A, B):
+
+        if B is not None:
+            C = pd.concat([A, B])
+        else:
+            C = A
+        return C
+
     def maximize_price(self) -> list:
 
-        out_list = []
+        out_list = pd.DataFrame()
 
         current_contract = self.get_start_contract()
 
-        out_list.append(current_contract)
+        out_list = self._concat(out_list, current_contract)
+
+        # out_list.append(current_contract)
 
         while self.is_ended is False:
 
@@ -21,8 +31,7 @@ class Solver:
 
             current_contract = self.get_next_contract(current_contract)
 
-            if current_contract is not None:
-                out_list.append(current_contract)
+            out_list = self._concat(out_list, current_contract)
 
         return out_list
 
