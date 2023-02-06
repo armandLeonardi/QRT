@@ -1,15 +1,42 @@
+"""
+This script is a part of small rental compagny simulation ask by QRT for application process.
+This script containt classes:
+    - Solver (heritate of Core): containt the optimization algorithm
+
+You can check on the '__main__' part to see how to use thoose classes
+Ael - 06FEB23
+"""
 import pandas as pd
 from Core import Core
 
 class Solver(Core):
 
-    def __init__(self, list_of_contracts, verbose: bool = False, debug: bool = False, formated: bool = False):
+    def __init__(self, list_of_contracts: list, verbose: bool = False, debug: bool = False, formated: bool = False):
+        """_summary_
+
+        Args:
+            list_of_contracts (list): list of contracts to optimize
+            verbose (bool, optional): true if you want to display details. False otherwise. Defaults to False.
+            debug (bool, optional): true if you want to display more details. Fale otherwise. Defaults to False.
+            formated (bool, optional): true if you want a formated display message. Defaults to False.
+        """
+
         super().__init__(verbose=verbose, debug=debug, formated=formated, cls=self.__class__.__name__)
         self.__version__ = "1.0.0"
-        self.list_of_contracts = pd.DataFrame(list_of_contracts)
+        self.list_of_contracts = pd.DataFrame(list_of_contracts) # load the list of contracts as pandas Dataframe
         self.is_ended = False
 
-    def _concat(self, A: pd.DataFrame, B: pd.DataFrame):
+    def _concat(self, A: pd.DataFrame, B: pd.DataFrame) -> pd.DataFrame:
+        """Concatenate the two dataframe in inputs.
+        Row concatenation.
+
+        Args:
+            A (pd.DataFrame): head dataframe
+            B (pd.DataFrame): foot dataframe
+
+        Returns:
+            pd.DataFrame: concatenate pandas Dataframe
+        """
 
         if B is not None:
             C = pd.concat([A, B])
@@ -18,11 +45,17 @@ class Solver(Core):
         return C
 
     def maximize_price(self) -> list:
+        """Maximize algorithm. Main part of the project.
+
+        Returns:
+            list: of contract whoose optimize the income
+        """
 
         self.debug("search for the most optimized contracts path")
 
         out_list = pd.DataFrame()
 
+        # ge the closet contract
         current_contract = self.get_start_contract()
 
         out_list = self._concat(out_list, current_contract)
@@ -31,28 +64,56 @@ class Solver(Core):
 
             self.debug(f"current contract {current_contract.to_json()}, remaining contracts {len(self.list_of_contracts)}")
 
+            # remove selected contract
             self.drop_contract(current_contract)
 
+            # get next contract in order to maximize the price
             current_contract = self.get_next_contract(current_contract)
 
+            # add the selected contract to the result
             out_list = self._concat(out_list, current_contract)
 
         return out_list
 
-    def get_start_contract(self):
+    def get_start_contract(self) -> pd.DataFrame:
+        """Return the contract with the smallest start date.
+
+        Returns:
+            pd.DataFrame: a contract as Dataframe type.
+        """
+
         return self.list_of_contracts[self.list_of_contracts['start'] == self.list_of_contracts['start'].min()]
 
-    def drop_contract(self, current_contract):
+    def drop_contract(self, current_contract: pd.DataFrame):
+        """Remove the contract in input of the list_of_contracts attribute.
+
+        Args:
+            current_contract (pd.DataFrame): contract to remove
+        """
 
         current_contract_index = current_contract.index[0]
         self.list_of_contracts = self.list_of_contracts.drop(current_contract_index)
 
 
-    def get_next_contract(self, current_contract):
+    def get_next_contract(self, current_contract: pd.DataFrame) -> pd.DataFrame:
+        """Select the next contract in the list_of_contract in order to maximize the income.
+
+        Method:
+        - set the current time (by extracting the duraction of current contract)
+        - select the list of possible contracts by only selecting contract with a start date greater of egal of the current time
+        - select the contract on this list with return the higher price
+          Continue this selection while the next contracts list was emty
+
+        Args:
+            current_contract (pd.DataFrame): juste finished contract
+
+        Returns:
+            pd.DataFrame: next selected contract
+        """
 
         next_contract = None
 
-        next_start = current_contract["duration"].values[0]
+        next_start = current_contract["start"].values[0] + current_contract["duration"].values[0]
         next_possible_contracts = self.list_of_contracts[self.list_of_contracts['start'] >= next_start]
 
         self.debug(f"List of next possibles contracts {next_possible_contracts.to_json()}")
