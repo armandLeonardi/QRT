@@ -28,7 +28,7 @@ class Solver(Core):
 
         super().__init__(verbose=verbose, debug=debug, formated=formated, cls=self.__class__.__name__)
         self.__version__ = "1.0.0"
-        self.list_of_contracts = pd.DataFrame(list_of_contracts) # load the list of contracts as pandas Dataframe
+        self.list_of_contracts = pd.DataFrame(list_of_contracts)  # load the list of contracts as pandas Dataframe
         self.is_ended = False
         self.result = {"income": 0, "path": []}
         self.start = -1
@@ -65,7 +65,6 @@ class Solver(Core):
         current_time = self.start + self.duration
         ended_contracts = self.list_of_contracts[self.list_of_contracts['start'] < current_time.values[0]]
         self.list_of_contracts = self.list_of_contracts.drop(ended_contracts.index)
-
 
     def get_next_contract(self):
         """Select the next contract in the list_of_contract in order to maximize the income.
@@ -111,16 +110,17 @@ class Solver(Core):
 
             self.is_ended = True
 
+
 if __name__ == "__main__":
 
     list_of_contracts = [
-    {"name": "Contract1", "start": 0, "duration": 5, "price": 10},
-    {"name": "Contract2", "start": 3, "duration": 7, "price": 14},
-    {"name": "Contract3", "start": 5, "duration": 9, "price": 8},
-    {"name": "Contract4", "start": 5, "duration": 9, "price": 7}
+        {"name": "Contract1", "start": 0, "duration": 5, "price": 10},
+        {"name": "Contract2", "start": 3, "duration": 7, "price": 14},
+        {"name": "Contract3", "start": 5, "duration": 9, "price": 8},
+        {"name": "Contract4", "start": 5, "duration": 9, "price": 7}
     ]
 
-    S = Solver(list_of_contracts=list_of_contracts, debug=True, verbose=True, formated=True)
+    S = Solver(list_of_contracts=list_of_contracts, windows=0, debug=True, verbose=True, formated=True)
 
     result = S.maximize_price()
 
