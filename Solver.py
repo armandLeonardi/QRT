@@ -8,6 +8,8 @@ Ael - 06FEB23
 """
 import pandas as pd
 from Core import Core
+import warnings
+warnings.filterwarnings('ignore')
 
 class Solver(Core):
 
@@ -25,6 +27,9 @@ class Solver(Core):
         self.__version__ = "1.0.0"
         self.list_of_contracts = pd.DataFrame(list_of_contracts) # load the list of contracts as pandas Dataframe
         self.is_ended = False
+        self.result = {"income": 0, "path": []}
+        self.start = -1
+        self.duration = -1
 
     def _concat(self, A: pd.DataFrame, B: pd.DataFrame) -> pd.DataFrame:
         """Concatenate the two dataframe in inputs.
@@ -53,27 +58,18 @@ class Solver(Core):
 
         self.debug("search for the most optimized contracts path")
 
-        out_list = pd.DataFrame()
-
-        # ge the closet contract
-        current_contract = self.get_start_contract()
-
-        out_list = self._concat(out_list, current_contract)
-
         while self.is_ended is False:
 
-            self.debug(f"current contract {current_contract.to_json()}, remaining contracts {len(self.list_of_contracts)}")
+            # get next contract in order to maximize the price
+            current_contract = self.get_next_contract()
 
             # remove selected contract
-            self.drop_contract(current_contract)
+            self.drop_contracts(current_contract)
 
-            # get next contract in order to maximize the price
-            current_contract = self.get_next_contract(current_contract)
+    def update_result(self, contract: pd.DataFrame) -> None:
 
-            # add the selected contract to the result
-            out_list = self._concat(out_list, current_contract)
-
-        return out_list
+        self.result["income"] += contract["price"].values[0]
+        self.result["path"].append(contract["name"].values[0])
 
     def get_start_contract(self) -> pd.DataFrame:
         """Return the contract with the smallest start date.
@@ -82,20 +78,27 @@ class Solver(Core):
             pd.DataFrame: a contract as Dataframe type.
         """
 
-        return self.list_of_contracts[self.list_of_contracts['start'] == self.list_of_contracts['start'].min()]
+        sub_list = self.list_of_contracts[self.list_of_contracts['start'] == self.list_of_contracts['start'].min()]
 
-    def drop_contract(self, current_contract: pd.DataFrame):
+        sub_list['ratio'] = sub_list['price'] / (sub_list['duration'] - sub_list['start'])
+        first_contract = sub_list[sub_list['ratio'] == sub_list['ratio'].max()]
+
+        return first_contract[['name', 'start', 'duration', 'price']]
+
+    def drop_contracts(self):
         """Remove the contract in input of the list_of_contracts attribute.
 
         Args:
             current_contract (pd.DataFrame): contract to remove
         """
 
-        current_contract_index = current_contract.index[0]
-        self.list_of_contracts = self.list_of_contracts.drop(current_contract_index)
+        #current_time = current_contract['start'] + current_contract['duration']
+        current_time = self.start + self.duration
+        ended_contracts = self.list_of_contracts[self.list_of_contracts['start'] < current_time.values[0]]
+        self.list_of_contracts = self.list_of_contracts.drop(ended_contracts.index)
 
 
-    def get_next_contract(self, current_contract: pd.DataFrame) -> pd.DataFrame:
+    def get_next_contract(self) -> pd.DataFrame:
         """Select the next contract in the list_of_contract in order to maximize the income.
 
         Method:
@@ -113,22 +116,30 @@ class Solver(Core):
 
         next_contract = None
 
-        next_start = current_contract["start"].values[0] + current_contract["duration"].values[0]
-        next_possible_contracts = self.list_of_contracts[self.list_of_contracts['start'] >= next_start]
+        #current_time = current_contract["start"] + current_contract["duration"]
+        next_possible_contracts = self.list_of_contracts[self.list_of_contracts['start'] <= self.list_of_contracts['start'].min() + 200]
 
         self.debug(f"List of next possibles contracts {next_possible_contracts.to_json()}")
 
         if next_possible_contracts.empty is False:
 
-            next_contract = next_possible_contracts[next_possible_contracts['price'] == next_possible_contracts['price'].max()]
+            next_possible_contracts['ratio'] = next_possible_contracts['price'] / next_possible_contracts['duration']
+            next_contract = next_possible_contracts[next_possible_contracts['ratio'] == next_possible_contracts['ratio'].max()]
 
-            self.debug(f"Selected next contract {next_contract.to_json()}")
+            if next_contract.shape[0] > 1:
+                next_contract = next_contract[next_contract['start'] == next_contract['start'].min()]
+
+            contract_name = next_contract["name"].values[0]
+            self.info(f"current contract {contract_name}, remaining contracts {len(self.list_of_contracts)}")
+
+            self.start = next_contract["start"]
+            self.duration = next_contract["duration"]
+
+            self.update_result(next_contract)
 
         else:
 
             self.is_ended = True
-
-        return next_contract
 
 if __name__ == "__main__":
 
