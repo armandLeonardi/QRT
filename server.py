@@ -10,11 +10,32 @@ from ast import literal_eval
 import subprocess
 from argparse import ArgumentParser
 from Core import Base64Engine
+from datetime import datetime
 import json
+import os
 
 app = Flask("qrt_rental_compagny_server")
 config = {}
 route = "/"
+
+def save_inputs_as_json(inputs: dict) -> str:
+    """Save as json file the contracts list.
+
+    Args:
+        inputs (dict): the list of dictionaries (list of contracts)
+
+    Returns:
+        str: the full path of the json
+    """
+
+    # we supose the temporary json file is the system current time
+    now = datetime.now().strftime("%d%m%y%H%M%S")
+    local_filename = f"{now}.json"
+    with open(local_filename, 'w', encoding="utf8") as f:
+        json.dump(inputs, f)
+        f.close()
+    
+    return os.path.abspath(local_filename) # return the absolute path depending of the current host
 
 if __name__ == "__main__":
 
@@ -24,6 +45,7 @@ if __name__ == "__main__":
     parser.add_argument("--debug", help="Display more details if true. False otherwise.", action='store_true')
     parser.add_argument("--formated", help="Format displayed messges if true. False otherwise.", action='store_true')
 
+    # parsing
     args = parser.parse_args()
 
     # set local variables from script inputs
@@ -49,33 +71,35 @@ if __name__ == "__main__":
 
         try:
             inputs = request.args["contracts"]    
+            inputs = save_inputs_as_json(inputs)
+
         except Exception as error:
-            inputs = r"{'error' : 'Key \'contracts\' is missing on your payload'}" # return an error message to user the contracts list is empty
+            inputs = literal_eval(r"{'error' : 'Key \'contracts\' is missing on your payload'}") # return an error message to user the contracts list is empty
             is_ok = False
 
-        return literal_eval(inputs), is_ok
-
+        return inputs, is_ok
 
     @app.route(f"{route}", methods=["POST", "GET"])
     def optimize():
 
         result = {}
-        raw_list_of_contracts, get_inputs_ok = get_inputs() # get inputs from url
+        local_input_file, get_inputs_ok = get_inputs() # get inputs from POST request
 
         if get_inputs_ok is True:
-
-            raw_list_of_contracts_b64 = Base64Engine.encode(raw_list_of_contracts) # encode the list of contract on base64
 
             # get target script and script config path from server configuration
             target_script = config.get("target_script")
             target_script_config = config.get("target_script_config")
 
             # launch as command the Main.py script with configuration and contracts list (base64 encoded) 
-            subprocess_result = subprocess.check_output(f"python {target_script} --config {target_script_config} --contracts {raw_list_of_contracts_b64}")
+            subprocess_result = subprocess.check_output(f"python {target_script} --config {target_script_config} --contracts {local_input_file}")
             result = literal_eval(subprocess_result.decode('utf8')) # get the result
 
+            # remove the temporary file containing all files
+            os.remove(local_input_file)
+
         else:
-            result = raw_list_of_contracts
+            result = local_input_file
 
         return jsonify(result) # display the result to user as json format
 
