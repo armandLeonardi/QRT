@@ -54,9 +54,9 @@ class Main(Core):
             self.solver = Solver(list_of_contracts=list_of_contracts, verbose=self._verbose, debug=self._debug, formated=self.formated)
             self.solver.set_logger(self) # set the current openend logger to Solver child object. See ..set_logger documentation.
 
-            selected_contracts = self.solver.maximize_price() # call the main method of the solver and get result
+            self.solver.maximize_price() # call the main method of the solver and get result
 
-            out = self.format_result(selected_contracts) # format result as ask {"income": xxx, "path": [xxx, yyy, ...]}
+            out = self.solver.result
 
             self.info(f"result: {out}")
 
