@@ -18,6 +18,7 @@ app = Flask("qrt_rental_compagny_server")
 config = {}
 route = "/"
 
+
 def save_inputs_as_json(inputs: dict) -> str:
     """Save as json file the contracts list.
 
@@ -34,13 +35,14 @@ def save_inputs_as_json(inputs: dict) -> str:
     with open(local_filename, 'w', encoding="utf8") as f:
         json.dump(inputs, f)
         f.close()
-    
-    return os.path.abspath(local_filename) # return the absolute path depending of the current host
+
+    return os.path.abspath(local_filename)  # return the absolute path depending of the current host
+
 
 if __name__ == "__main__":
 
     parser = ArgumentParser()
-    parser.add_argument("--config", help="Configuration path use by Main.py" ,type=str, default="")
+    parser.add_argument("--config", help="Configuration path use by Main.py", type=str, default="")
     parser.add_argument("--verbose", help="Display details if true. False otherwise.", action='store_true')
     parser.add_argument("--debug", help="Display more details if true. False otherwise.", action='store_true')
     parser.add_argument("--formated", help="Format displayed messges if true. False otherwise.", action='store_true')
@@ -70,11 +72,11 @@ if __name__ == "__main__":
         is_ok = True
 
         try:
-            inputs = request.args["contracts"]    
+            inputs = request.args["contracts"]
             inputs = save_inputs_as_json(inputs)
 
         except Exception as error:
-            inputs = literal_eval(r"{'error' : 'Key \'contracts\' is missing on your payload'}") # return an error message to user the contracts list is empty
+            inputs = literal_eval(r"{'error' : 'Key \'contracts\' is missing on your payload'}")  # return an error message to user the contracts list is empty
             is_ok = False
 
         return inputs, is_ok
@@ -83,7 +85,7 @@ if __name__ == "__main__":
     def optimize():
 
         result = {}
-        local_input_file, get_inputs_ok = get_inputs() # get inputs from POST request
+        local_input_file, get_inputs_ok = get_inputs()  # get inputs from POST request
 
         if get_inputs_ok is True:
 
@@ -91,9 +93,10 @@ if __name__ == "__main__":
             target_script = config.get("target_script")
             target_script_config = config.get("target_script_config")
 
-            # launch as command the Main.py script with configuration and contracts list (base64 encoded) 
-            subprocess_result = subprocess.check_output(f"python {target_script} --config {target_script_config} --contracts {local_input_file}")
-            result = literal_eval(subprocess_result.decode('utf8')) # get the result
+            # launch as command the Main.py script with configuration and contracts list file name full path
+            subprocess_result = subprocess.run(f"python {target_script} --config {target_script_config} --contracts {local_input_file}", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+            result = literal_eval(subprocess_result.stdout.decode('utf8'))  # get the result
 
             # remove the temporary file containing all files
             os.remove(local_input_file)
@@ -101,7 +104,7 @@ if __name__ == "__main__":
         else:
             result = local_input_file
 
-        return jsonify(result) # display the result to user as json format
+        return jsonify(result)  # display the result to user as json format
 
     # launch the web server
     app.run(debug=True, host=host, port=port)
