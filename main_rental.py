@@ -9,6 +9,26 @@ from Main import Main
 from argparse import ArgumentParser # parse the inputs arguements
 from Core import Base64Engine
 from ast import literal_eval
+import json
+
+def open_contracts_file(contracts_file_path: str) -> dict:
+    """Load the contracts json file.
+
+    Args:
+        contracts_file_path (str): full path of json file
+
+    Returns:
+        dict: list of contracts as dictionary
+    """
+    data = []
+
+    # no try/except is set here we consider ans error at this point as critical
+    with open(contracts_file_path, 'r', encoding="utf8") as f:
+        data = json.load(f)
+        f.close()
+    
+    return literal_eval(data)
+
 
 if __name__ == '__main__':
 
@@ -23,7 +43,7 @@ if __name__ == '__main__':
 
     # set arguments to local variables
     config = args.config.strip()
-    contracts = literal_eval(Base64Engine.decode(args.contracts.strip()))
+    contracts = args.contracts.strip() # path of contracts json file
     verbose = args.verbose
     debug = args.debug
     formated = args.formated
@@ -36,6 +56,9 @@ if __name__ == '__main__':
 
     # open the log file
     current_main.open_log_file()
+
+    # load the json file given in inputs
+    contracts = open_contracts_file(contracts_file_path=contracts)
 
     # launch the main method (optimize the contracts path)
     result = current_main.run(list_of_contracts=contracts)
