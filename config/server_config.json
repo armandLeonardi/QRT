@@ -1,0 +1,10 @@
+{
+    "verbose": false,
+    "debug": false,
+    "formated": false,
+    "target_script": "D:\\Informatique\\QRT\\main_rental.py",
+    "target_script_config": "D:\\Informatique\\QRT\\config\\main_config.json",
+    "route": "/spaceship/optimize",
+    "host": "127.0.0.1",
+    "port": "8080"
+}
