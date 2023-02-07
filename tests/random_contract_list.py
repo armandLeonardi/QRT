@@ -14,7 +14,7 @@ import os
 template = {"name": "", "start": -1, "duration": -1, "price": -1}
 
 
-N = 500000
+N = 500000 # number of contracts
 start = 0 
 duration_min = 1
 duration_max = 9
