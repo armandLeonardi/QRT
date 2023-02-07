@@ -29,6 +29,7 @@ class Main(Core):
         super().__init__(path_config=path_config, verbose=verbose, debug=debug, formated=formated, cls=self.__class__.__name__)
         self.__version__ = "1.0.0"
         self.solver = None
+        self.windows = -1
 
     def run(self, list_of_contracts: list = []) -> dict:
         """Main method of Main class.
@@ -51,8 +52,8 @@ class Main(Core):
             self.info(f"nb of contracts {len(list_of_contracts)}")
 
             # instance the solver
-            self.solver = Solver(list_of_contracts=list_of_contracts, verbose=self._verbose, debug=self._debug, formated=self.formated)
-            self.solver.set_logger(self) # set the current openend logger to Solver child object. See ..set_logger documentation.
+            self.solver = Solver(list_of_contracts=list_of_contracts, windows=self.windows, verbose=self._verbose, debug=self._debug, formated=self.formated)
+            self.solver.set_logger(self) # set the current openend logger to Solver child object. See xxxx.set_logger documentation.
 
             self.solver.maximize_price() # call the main method of the solver and get result
 
