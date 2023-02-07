@@ -1,0 +1,11 @@
+07/02/23 19:00:52 | Main      | info      | launch run method
+07/02/23 19:00:52 | Main      | info      | nb of contracts 20
+07/02/23 19:00:52 | Solver    | debug     | search for the most optimized contracts path
+07/02/23 19:00:52 | Solver    | debug     | List of next possibles contracts {"name":{"0":"Contract1","1":"Contract2","2":"Contract3","3":"Contract4","4":"Contract5","5":"Contract6","6":"Contract7","7":"Contract8","8":"Contract9","9":"Contract10","10":"Contract11","11":"Contract12","12":"Contract13","13":"Contract14","14":"Contract15","15":"Contract16","16":"Contract17","17":"Contract18","18":"Contract19","19":"Contract20"},"start":{"0":0,"1":8,"2":8,"3":8,"4":8,"5":10,"6":10,"7":16,"8":16,"9":22,"10":22,"11":28,"12":28,"13":28,"14":28,"15":29,"16":29,"17":29,"18":34,"19":34},"duration":{"0":8,"1":6,"2":8,"3":7,"4":2,"5":6,"6":5,"7":6,"8":6,"9":4,"10":6,"11":5,"12":8,"13":8,"14":1,"15":4,"16":7,"17":5,"18":5,"19":5},"price":{"0":18,"1":8,"2":17,"3":3,"4":14,"5":5,"6":3,"7":17,"8":11,"9":5,"10":16,"11":14,"12":7,"13":17,"14":17,"15":16,"16":13,"17":2,"18":15,"19":2}}
+07/02/23 19:00:52 | Solver    | info      | current contract Contract15, remaining contracts 20
+07/02/23 19:00:52 | Solver    | debug     | List of next possibles contracts {"name":{"15":"Contract16","16":"Contract17","17":"Contract18","18":"Contract19","19":"Contract20"},"start":{"15":29,"16":29,"17":29,"18":34,"19":34},"duration":{"15":4,"16":7,"17":5,"18":5,"19":5},"price":{"15":16,"16":13,"17":2,"18":15,"19":2}}
+07/02/23 19:00:52 | Solver    | info      | current contract Contract16, remaining contracts 5
+07/02/23 19:00:52 | Solver    | debug     | List of next possibles contracts {"name":{"18":"Contract19","19":"Contract20"},"start":{"18":34,"19":34},"duration":{"18":5,"19":5},"price":{"18":15,"19":2}}
+07/02/23 19:00:52 | Solver    | info      | current contract Contract19, remaining contracts 2
+07/02/23 19:00:52 | Solver    | debug     | List of next possibles contracts {"name":{},"start":{},"duration":{},"price":{}}
+07/02/23 19:00:52 | Main      | info      | result: {'income': 48, 'path': ['Contract15', 'Contract16', 'Contract19']}
