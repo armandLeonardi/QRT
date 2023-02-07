@@ -3,11 +3,11 @@ This script is a part of small rental compagny simulation ask by QRT for applica
 This script containt classes:
     - Main (Core heritate): work on contracts list given, call a Solver and return a correct formated result.
 
-You can check on the '__main__' part to see how to use thoose classes
 Ael - 06FEB23
 """
 from Solver import Solver
 from Core import Core
+
 
 class Main(Core):
     """Python class interface between main_rental script and Solver.
@@ -42,7 +42,7 @@ class Main(Core):
             dict: the result as asked format
         """
 
-        self.info("launch run method") # do not forget, this line display and write on a log the input message
+        self.info("launch run method")  # do not forget, this line display and write on a log the input message
 
         out = {}
 
@@ -53,9 +53,9 @@ class Main(Core):
 
             # instance the solver
             self.solver = Solver(list_of_contracts=list_of_contracts, windows=self.windows, verbose=self._verbose, debug=self._debug, formated=self.formated)
-            self.solver.set_logger(self) # set the current openend logger to Solver child object. See xxxx.set_logger documentation.
+            self.solver.set_logger(self)  # set the current openend logger to Solver child object. See xxxx.set_logger documentation.
 
-            self.solver.maximize_price() # call the main method of the solver and get result
+            self.solver.maximize_price()  # call the main method of the solver and get result
 
             out = self.solver.result
 
@@ -80,7 +80,3 @@ class Main(Core):
         out = {"income": str(selected_contracts["price"].sum()), "path": list(selected_contracts["name"])}
 
         return out
-
-if __name__ == "__main__":
-
-    pass
